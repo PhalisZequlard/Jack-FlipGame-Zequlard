@@ -1,18 +1,16 @@
 class MemoryGame {
-    field Array cards;        // Array to store card values
-    field Array revealed;     // Array to track revealed state
-    field Array matched;      // Array to track matched pairs
-    field int firstCard;      // Index of first selected card
-    field int secondCard;     // Index of second selected card
-    field boolean gameOver;   // Game over flag
-    field Random rnd;         // Random number generator
+    field Array cards;
+    field Array revealed;
+    field Array matched;
+    field int firstCard;
+    field int secondCard;
+    field boolean gameOver;
+    field Random rnd;
     
-    // Constructor
     constructor MemoryGame new() {
         var int i, j, temp, randIndex;
         var Array tempArray;
         
-        // Initialize arrays
         let cards = Array.new(16);
         let revealed = Array.new(16);
         let matched = Array.new(16);
@@ -21,7 +19,6 @@ class MemoryGame {
         let gameOver = false;
         let rnd = Random.new();
         
-        // Initialize card values (1-8, each twice)
         let tempArray = Array.new(16);
         let i = 0;
         while (i < 8) {
@@ -30,18 +27,15 @@ class MemoryGame {
             let i = i + 1;
         }
         
-        // Shuffle cards using Fisher-Yates algorithm
         let i = 15;
         while (i > 0) {
             let randIndex = rnd.randRange(i + 1);
-            // Swap elements
             let temp = tempArray[i];
             let tempArray[i] = tempArray[randIndex];
             let tempArray[randIndex] = temp;
             let i = i - 1;
         }
         
-        // Copy shuffled array to cards array
         let i = 0;
         while (i < 16) {
             let cards[i] = tempArray[i];
@@ -54,57 +48,83 @@ class MemoryGame {
         return this;
     }
     
-    // Method to draw the game board
     method void drawBoard() {
         var int i, row, col, value;
+        var int cardWidth, cardHeight, spacing;
+        
         do Screen.clearScreen();
+        
+        let cardWidth = 40;
+        let cardHeight = 40;
+        let spacing = 10;
+        
+        // Draw title
+        do Output.moveCursor(0, 0);
+        do Output.printString("Memory Game");
         
         let i = 0;
         while (i < 16) {
             let row = i / 4;
-            let col = Math.multiply(i - Math.multiply(row, 4), 100);
-            let row = Math.multiply(row, 100);
+            let col = i - (Math.multiply(row, 4));
             
-            do Screen.drawRectangle(col, row, col + 80, row + 80);
+            let col = Math.multiply(col, (cardWidth + spacing)) + spacing;
+            let row = Math.multiply(row, (cardHeight + spacing)) + spacing + 20; // Added offset for title
+            
+            do Screen.drawRectangle(col, row, col + cardWidth, row + cardHeight);
             
             if (revealed[i] | matched[i]) {
                 let value = cards[i];
-                do Output.moveCursor(row/11 + 1, col/8 + 2);
+                // Calculate text position based on card position
+                do Output.moveCursor((row / 11) + 2, (col / 8) + 1);
                 do Output.printInt(value);
             }
             
             let i = i + 1;
         }
+        
+        // Draw instructions at bottom of screen
+        do Output.moveCursor(20, 0);
+        do Output.printString("Space: Select card (0-15)");
+        do Output.moveCursor(21, 0);
+        do Output.printString("Q: Quit game");
+        
         return;
     }
     
-    // Method to handle card selection
+    method void showMessage(String message) {
+        do Output.moveCursor(18, 0);
+        do Output.printString(message);
+        return;
+    }
+    
     method void selectCard(int index) {
-        if (~revealed[index] & ~matched[index]) {
-            if (firstCard = -1) {
-                let firstCard = index;
-                let revealed[index] = true;
-            } else {
-                if (~(firstCard = index)) {
-                    let secondCard = index;
+        if ((index > -1) & (index < 16)) {
+            if (~revealed[index] & ~matched[index]) {
+                if (firstCard = -1) {
+                    let firstCard = index;
                     let revealed[index] = true;
-                    do checkMatch();
+                    do showMessage("Select second card");
+                } else {
+                    if (~(firstCard = index)) {
+                        let secondCard = index;
+                        let revealed[index] = true;
+                        do checkMatch();
+                    }
                 }
+                do drawBoard();
             }
-            do drawBoard();
         }
         return;
     }
     
-    // Method to check if selected cards match
     method void checkMatch() {
         var int i;
         
         if (cards[firstCard] = cards[secondCard]) {
             let matched[firstCard] = true;
             let matched[secondCard] = true;
+            do showMessage("Match found!");
             
-            // Check if game is over
             let gameOver = true;
             let i = 0;
             while (i < 16) {
@@ -113,27 +133,27 @@ class MemoryGame {
                 }
                 let i = i + 1;
             }
+        } else {
+            do showMessage("No match. Try again!");
         }
         
-        // Reset selections
-        do Sys.wait(500);  // Wait to show cards
-        let revealed[firstCard] = false;
-        let revealed[secondCard] = false;
+        do Sys.wait(1000);
+        
+        if (~(cards[firstCard] = cards[secondCard])) {
+            let revealed[firstCard] = false;
+            let revealed[secondCard] = false;
+        }
         let firstCard = -1;
         let secondCard = -1;
         
-        if (~(cards[firstCard] = cards[secondCard])) {
-            do drawBoard();
-        }
+        do drawBoard();
         return;
     }
     
-    // Method to check if game is over
     method boolean isGameOver() {
         return gameOver;
     }
     
-    // Dispose method
     method void dispose() {
         do cards.dispose();
         do revealed.dispose();
