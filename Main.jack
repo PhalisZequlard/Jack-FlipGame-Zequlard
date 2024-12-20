@@ -40,3 +40,4 @@ class Main {
         return;
     }
 }
+// AWA can run but heap overflow
