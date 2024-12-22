@@ -1,5 +1,5 @@
-// File: MemoryGame.jack
-class MemoryGame {
+// File: Memory_Game.jack
+class Memory_Game {
     field Array cards;        // Array to store card values
     field Array revealed;     // Array to track revealed cards
     field Array matched;      // Array to track matched cards
@@ -10,7 +10,7 @@ class MemoryGame {
     field boolean gameOver;  // Game state
 
     /** Constructor */
-    constructor MemoryGame new() {
+    constructor Memory_Game new() {
         do Random.init();  // Initialize random number generator
         let cards = Array.new(16);      // Create 16 cards
         let revealed = Array.new(16);    // Track revealed status
@@ -22,8 +22,24 @@ class MemoryGame {
         let secondCard = -1;
         let gameOver = false;
         
+        // Initialize arrays
+        do initializeArrays();
         do initializeCards();
+        // Draw initial board
+        do draw();
         return this;
+    }
+
+    /** Initialize arrays */
+    method void initializeArrays() {
+        var int i;
+        let i = 0;
+        while (i < 16) {
+            let revealed[i] = false;
+            let matched[i] = false;
+            let i = i + 1;
+        }
+        return;
     }
 
     /** Initialize cards with pairs of numbers 1-8 */
@@ -61,6 +77,9 @@ class MemoryGame {
         if (key = 65) { do moveLeft(); }  // A
         if (key = 68) { do moveRight(); } // D
         if (key = 32) { do flipCard(); }  // Space
+        
+        // Redraw after any input
+        do draw();
         return;
     }
 
@@ -158,6 +177,7 @@ class MemoryGame {
 
     /** Show score */
     method void showScore() {
+        do Output.moveCursor(20, 0);
         do Output.printString("Game Over! Moves: ");
         do Output.printInt(moves);
         do Output.println();
@@ -196,30 +216,54 @@ class MemoryGame {
     /** Draw game board */
     method void draw() {
         var int i, x, y, value;
+        
+        // Clear screen first
+        do Screen.clearScreen();
+        
+        // Draw instructions
+        do Output.moveCursor(0, 0);
+        do Output.printString("W/A/S/D - Move");
+        do Output.moveCursor(1, 0);
+        do Output.printString("SPACE - Flip");
+        do Output.moveCursor(2, 0);
+        do Output.printString("Q - Quit");
+        
         let i = 0;
         while (i < 16) {
             let x = (i - ((i / 4) * 4)) * 50 + 10;
-            let y = (i / 4) * 50 + 10;
+            let y = (i / 4) * 50 + 50;  // Moved down to make room for instructions
             
+            // Draw card background
+            do Screen.setColor(true);
+            do Screen.drawRectangle(x, y, x + 40, y + 40);
+            
+            // Draw card content
             if (matched[i]) {
                 do Screen.setColor(false);
-                do Screen.drawRectangle(x, y, x + 40, y + 40);
+                do Screen.drawRectangle(x + 2, y + 2, x + 38, y + 38);
             } else {
-                do Screen.setColor(true);
-                do Screen.drawRectangle(x, y, x + 40, y + 40);
+                do Screen.setColor(false);
+                do Screen.drawRectangle(x + 2, y + 2, x + 38, y + 38);
                 
                 if (revealed[i]) {
                     let value = cards[i];
-                    do Output.moveCursor(y/11, x/8);
+                    do Output.moveCursor((y + 20)/11, (x + 20)/8);
                     do Output.printInt(value);
                 }
             }
             let i = i + 1;
         }
         
+        // Draw cursor (larger and more visible)
+        let x = cursorX * 50 + 10;
+        let y = cursorY * 50 + 50;
         do Screen.setColor(true);
-        do Screen.drawRectangle(cursorX * 50 + 8, cursorY * 50 + 8,
-                              cursorX * 50 + 12, cursorY * 50 + 12);
+        // Draw cursor border
+        do Screen.drawRectangle(x - 2, y - 2, x + 42, y);  // Top
+        do Screen.drawRectangle(x - 2, y + 40, x + 42, y + 42);  // Bottom
+        do Screen.drawRectangle(x - 2, y, x, y + 40);  // Left
+        do Screen.drawRectangle(x + 40, y, x + 42, y + 40);  // Right
+        
         return;
     }
 }

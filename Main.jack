@@ -1,40 +1,38 @@
-// File: Main.jack
 class Main {
     /** Main entry point */
     function void main() {
         var Memory_Game game;  // Use Memory_Game to avoid issues with underscore
         var char key;
-        var boolean gameRunning;
         
-        // Initialize variables
-        let key = 0;
-        let gameRunning = true;
-        
-        // Show welcome message
+        // Clear screen and show welcome message
+        do Screen.clearScreen();
         do Output.moveCursor(10, 20);
         do Output.printString("Memory Game");
         do Output.moveCursor(11, 15);
         do Output.printString("Press SPACE to start game");
         
         // Wait for space key
-        while (gameRunning) {
+        let key = 0;
+        while (~(key = 32)) {  // Wait for SPACE
             let key = Keyboard.keyPressed();
-            if (key = 32) {  // Space key
-                do Screen.clearScreen();
-                let game = Memory_Game.new();
-                
-                // Main game loop
-                while (~(key = 81)) {  // Q to quit
-                    let key = Keyboard.keyPressed();
-                    do game.handleInput(key);
-                    do game.draw();
-                    do Sys.wait(50);
-                }
-                
-                do game.dispose();
-                let gameRunning = false;
-            }
+            do Sys.wait(50);
         }
+        
+        // Clear screen and start game
+        do Screen.clearScreen();
+        let game = Memory_Game.new();
+        
+        // Reset key to avoid immediate flip
+        let key = 0;
+        while (~(key = 81)) {  // Q to quit
+            let key = Keyboard.keyPressed();
+            if (key > 0) {  // Only handle non-zero keys
+                do game.handleInput(key);
+            }
+            do Sys.wait(50);
+        }
+        
+        do game.dispose();
         return;
     }
 }
