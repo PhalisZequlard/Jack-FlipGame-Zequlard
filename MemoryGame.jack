@@ -9,7 +9,7 @@ class MemoryGame {
     field int secondCard;    // Index of second revealed card
     field boolean gameOver;  // Game state
 
-    // Constructor
+    /** Constructor */
     constructor MemoryGame new() {
         do Random.init();  // Initialize random number generator
         let cards = Array.new(16);      // Create 16 cards
@@ -26,7 +26,7 @@ class MemoryGame {
         return this;
     }
 
-    // Initialize cards with pairs of numbers 1-8
+    /** Initialize cards with pairs of numbers 1-8 */
     method void initializeCards() {
         var Array numbers;
         var int i, rand, temp;
@@ -54,7 +54,7 @@ class MemoryGame {
         return;
     }
 
-    // Handle keyboard input
+    /** Handle keyboard input */
     method void handleInput(char key) {
         if (key = 87) { do moveUp(); }    // W
         if (key = 83) { do moveDown(); }  // S
@@ -64,7 +64,7 @@ class MemoryGame {
         return;
     }
 
-    // Move cursor up
+    /** Move cursor up */
     method void moveUp() {
         if (cursorY > 0) {
             let cursorY = cursorY - 1;
@@ -72,7 +72,7 @@ class MemoryGame {
         return;
     }
 
-    // Move cursor down
+    /** Move cursor down */
     method void moveDown() {
         if (cursorY < 3) {
             let cursorY = cursorY + 1;
@@ -80,7 +80,7 @@ class MemoryGame {
         return;
     }
 
-    // Move cursor left
+    /** Move cursor left */
     method void moveLeft() {
         if (cursorX > 0) {
             let cursorX = cursorX - 1;
@@ -88,7 +88,7 @@ class MemoryGame {
         return;
     }
 
-    // Move cursor right
+    /** Move cursor right */
     method void moveRight() {
         if (cursorX < 3) {
             let cursorX = cursorX + 1;
@@ -96,7 +96,7 @@ class MemoryGame {
         return;
     }
 
-    // Flip card at cursor position
+    /** Flip card at cursor position */
     method void flipCard() {
         var int index;
         let index = (cursorY * 4) + cursorX;
@@ -120,13 +120,13 @@ class MemoryGame {
         return;
     }
 
-    // Check if revealed cards match
+    /** Check if revealed cards match */
     method void checkMatch() {
         if (cards[firstCard] = cards[secondCard]) {
             do Output.printString("Yea!");
+            do Output.println();
             let matched[firstCard] = true;
             let matched[secondCard] = true;
-            // Check if game is over
             if (isGameOver()) {
                 let gameOver = true;
                 do showScore();
@@ -143,7 +143,7 @@ class MemoryGame {
         return;
     }
 
-    // Check if all cards are matched
+    /** Check if all cards are matched */
     method boolean isGameOver() {
         var int i;
         let i = 0;
@@ -156,14 +156,15 @@ class MemoryGame {
         return true;
     }
 
-    // Show score
+    /** Show score */
     method void showScore() {
         do Output.printString("Game Over! Moves: ");
         do Output.printInt(moves);
+        do Output.println();
         return;
     }
 
-    // Restart game
+    /** Restart game */
     method void restart() {
         do initializeCards();
         let moves = 0;
@@ -184,26 +185,24 @@ class MemoryGame {
         return;
     }
 
-    // Dispose of memory
+    /** Dispose of memory */
     method void dispose() {
-        do cards.dispose();
-        do revealed.dispose();
-        do matched.dispose();
+        do Memory.deAlloc(cards);
+        do Memory.deAlloc(revealed);
+        do Memory.deAlloc(matched);
         do Memory.deAlloc(this);
         return;
     }
 
-    // Draw game board
+    /** Draw game board */
     method void draw() {
         var int i, x, y, value;
         let i = 0;
         while (i < 16) {
-            let x = (i - ((i / 4) * 4)) * 50 + 10;  // Calculate x position
-            let y = (i / 4) * 50 + 10;              // Calculate y position
+            let x = (i - ((i / 4) * 4)) * 50 + 10;
+            let y = (i / 4) * 50 + 10;
             
-            // Draw card
             if (matched[i]) {
-                // Draw empty space for matched cards
                 do Screen.setColor(false);
                 do Screen.drawRectangle(x, y, x + 40, y + 40);
             } else {
@@ -211,7 +210,6 @@ class MemoryGame {
                 do Screen.drawRectangle(x, y, x + 40, y + 40);
                 
                 if (revealed[i]) {
-                    // Draw card number
                     let value = cards[i];
                     do Output.moveCursor(y/11, x/8);
                     do Output.printInt(value);
@@ -220,7 +218,6 @@ class MemoryGame {
             let i = i + 1;
         }
         
-        // Draw cursor
         do Screen.setColor(true);
         do Screen.drawRectangle(cursorX * 50 + 8, cursorY * 50 + 8,
                               cursorX * 50 + 12, cursorY * 50 + 12);

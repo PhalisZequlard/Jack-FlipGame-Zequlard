@@ -1,11 +1,27 @@
 // File: Main.jack
 class Main {
+    static MemoryGame game;  // Static game instance
+    
+    /** Initialize game */
+    function void init() {
+        let game = MemoryGame.new();
+        return;
+    }
+    
+    /** Dispose game resources */
+    function void cleanup() {
+        if (~(game = null)) {
+            do game.dispose();
+        }
+        return;
+    }
+
+    /** Main game loop */
     function void main() {
-        var MemoryGame game;
         var char key;
         let key = 0;
         
-        let game = MemoryGame.new();
+        do Main.init();
         
         while (~(key = 81)) {  // Q to quit
             let key = Keyboard.keyPressed();
@@ -14,7 +30,7 @@ class Main {
             do Sys.wait(50);
         }
         
-        do game.dispose();
+        do Main.cleanup();
         return;
     }
 }
