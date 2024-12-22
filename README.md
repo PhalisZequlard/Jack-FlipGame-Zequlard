@@ -1,4 +1,36 @@
-// File: MemoryGame.jack
+// Simple Random Number Generator
+class Random {
+    static int seed;
+    
+    // Initialize with a default seed
+    function void init() {
+        let seed = 12345;
+        return;
+    }
+    
+    // Set custom seed
+    function void setSeed(int newSeed) {
+        let seed = newSeed;
+        return;
+    }
+    
+    // Generate next random number
+    function int rand() {
+        let seed = seed * 1309 + 13849;
+        if (seed < 0) {
+            let seed = ~seed;  // Make positive if negative
+        }
+        return seed;
+    }
+    
+    // Generate random number in range [0, max)
+    function int randRange(int max) {
+        var int rand;
+        let rand = Random.rand();
+        return rand - ((rand / max) * max);  // Modulo operation
+    }
+}
+
 class MemoryGame {
     field Array cards;        // Array to store card values
     field Array revealed;     // Array to track revealed cards
@@ -224,6 +256,26 @@ class MemoryGame {
         do Screen.setColor(true);
         do Screen.drawRectangle(cursorX * 50 + 8, cursorY * 50 + 8,
                               cursorX * 50 + 12, cursorY * 50 + 12);
+        return;
+    }
+}
+
+// Main game class
+class Main {
+    function void main() {
+        var MemoryGame game;
+        var char key;
+        
+        let game = MemoryGame.new();
+        
+        while (~(key = 81)) {  // Q to quit
+            let key = Keyboard.keyPressed();
+            do game.handleInput(key);
+            do game.draw();
+            do Sys.wait(50);
+        }
+        
+        do game.dispose();
         return;
     }
 }

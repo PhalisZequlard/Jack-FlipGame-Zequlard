@@ -1,37 +1,32 @@
+// File: Random.jack
 class Random {
-    field int seed;
+    static int seed;
     
-    // Constructor with a default seed
-    constructor Random new() {
-        // Use default seed
-        let seed = 345;
-        return this;
+    // Initialize with a default seed
+    function void init() {
+        let seed = 12345;
+        return;
     }
     
-    // Linear Congruential Generator (LCG) parameters
-    // Using values: multiplier = 97, increment = 599, modulus = 234
-    method int rand() {
-        let seed = Math.multiply(seed, 97);
-        let seed = seed + 599;
-        let seed = Math.multiply(seed, seed);
-        let seed = seed - Math.multiply(Math.divide(seed, 234), 234);
+    // Set custom seed
+    function void setSeed(int newSeed) {
+        let seed = newSeed;
+        return;
+    }
+    
+    // Generate next random number
+    function int rand() {
+        let seed = seed * 1309 + 13849;
+        if (seed < 0) {
+            let seed = ~seed;  // Make positive if negative
+        }
         return seed;
     }
     
-    // Generate number between 0 and (max-1)
-    method int randRange(int max) {
-        var int randNum;
-        let randNum = rand();
-        // Ensure positive number
-        if (randNum < 0) {
-            let randNum = -randNum;
-        }
-        return Math.multiply(randNum, max) - Math.multiply(Math.divide(Math.multiply(randNum, max), 234), 234);
-    }
-    
-    // Dispose method
-    method void dispose() {
-        do Memory.deAlloc(this);
-        return;
+    // Generate random number in range [0, max)
+    function int randRange(int max) {
+        var int rand;
+        let rand = Random.rand();
+        return rand - ((rand / max) * max);  // Modulo operation
     }
 }

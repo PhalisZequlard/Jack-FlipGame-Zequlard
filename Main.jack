@@ -1,38 +1,16 @@
+// File: Main.jack
 class Main {
     function void main() {
         var MemoryGame game;
         var char key;
-        var int selectedCard;
-        var boolean exit;
+        let key = 0;
         
         let game = MemoryGame.new();
-        let exit = false;
         
-        while (~exit) {
-            do game.drawBoard();
-            
+        while (~(key = 81)) {  // Q to quit
             let key = Keyboard.keyPressed();
-            
-            if (key = 81) {  // 'q' key
-                let exit = true;
-            }
-            
-            if (key = 32) {  // spacebar
-                while (key = 32) {
-                    let key = Keyboard.keyPressed();
-                }
-                do Output.moveCursor(16, 0);
-                let selectedCard = Keyboard.readInt("Card (0-15): ");
-                do game.selectCard(selectedCard);
-            }
-            
-            if (game.isGameOver()) {
-                do Output.moveCursor(18, 0);
-                do Output.printString("Congratulations! Game Over!");
-                do Sys.wait(2000);
-                let exit = true;
-            }
-            
+            do game.handleInput(key);
+            do game.draw();
             do Sys.wait(50);
         }
         
@@ -40,4 +18,3 @@ class Main {
         return;
     }
 }
-// AWA can run but heap overflow
