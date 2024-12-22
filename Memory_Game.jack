@@ -124,9 +124,9 @@ class MemoryGame {
     method void checkMatch() {
         if (cards[firstCard] = cards[secondCard]) {
             do Output.printString("Yea!");
-            do Output.println();
             let matched[firstCard] = true;
             let matched[secondCard] = true;
+            // Check if game is over
             if (isGameOver()) {
                 let gameOver = true;
                 do showScore();
@@ -166,6 +166,8 @@ class MemoryGame {
 
     /** Restart game */
     method void restart() {
+        var int i;
+        let i = 0;
         do initializeCards();
         let moves = 0;
         let firstCard = -1;
@@ -174,9 +176,6 @@ class MemoryGame {
         let cursorX = 0;
         let cursorY = 0;
         
-        // Reset revealed and matched arrays
-        var int i;
-        let i = 0;
         while (i < 16) {
             let revealed[i] = false;
             let matched[i] = false;
@@ -187,9 +186,9 @@ class MemoryGame {
 
     /** Dispose of memory */
     method void dispose() {
-        do Memory.deAlloc(cards);
-        do Memory.deAlloc(revealed);
-        do Memory.deAlloc(matched);
+        do cards.dispose();
+        do revealed.dispose();
+        do matched.dispose();
         do Memory.deAlloc(this);
         return;
     }

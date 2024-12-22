@@ -1,36 +1,40 @@
 // File: Main.jack
 class Main {
-    static MemoryGame game;  // Static game instance
-    
-    /** Initialize game */
-    function void init() {
-        let game = MemoryGame.new();
-        return;
-    }
-    
-    /** Dispose game resources */
-    function void cleanup() {
-        if (~(game = null)) {
-            do game.dispose();
-        }
-        return;
-    }
-
-    /** Main game loop */
+    /** Main entry point */
     function void main() {
+        var Memory_Game game;  // Use Memory_Game to avoid issues with underscore
         var char key;
+        var boolean gameRunning;
+        
+        // Initialize variables
         let key = 0;
+        let gameRunning = true;
         
-        do Main.init();
+        // Show welcome message
+        do Output.moveCursor(10, 20);
+        do Output.printString("Memory Game");
+        do Output.moveCursor(11, 15);
+        do Output.printString("Press SPACE to start game");
         
-        while (~(key = 81)) {  // Q to quit
+        // Wait for space key
+        while (gameRunning) {
             let key = Keyboard.keyPressed();
-            do game.handleInput(key);
-            do game.draw();
-            do Sys.wait(50);
+            if (key = 32) {  // Space key
+                do Screen.clearScreen();
+                let game = Memory_Game.new();
+                
+                // Main game loop
+                while (~(key = 81)) {  // Q to quit
+                    let key = Keyboard.keyPressed();
+                    do game.handleInput(key);
+                    do game.draw();
+                    do Sys.wait(50);
+                }
+                
+                do game.dispose();
+                let gameRunning = false;
+            }
         }
-        
-        do Main.cleanup();
         return;
     }
 }
